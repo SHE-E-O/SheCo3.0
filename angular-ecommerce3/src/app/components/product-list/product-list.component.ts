@@ -92,4 +92,11 @@ console.log(`currrentCategoryId=${this.currentCategoryId}, thePageNumber=${this.
       } ;
     }
 
+
+    addToCart(theProduct: Product){
+      console.log(`Adding to cart: ${theProduct.name}, ${theProduct.unitPrice}`)
+
+      // TODO the real work
+      
+    }
 }
