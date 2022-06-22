@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Country } from 'src/app/common/country';
+import { State } from 'src/app/common/state';
 import { SHEcoShopFormService } from 'src/app/services/sheco-shop-form.service';
 
 
@@ -14,6 +16,10 @@ export class CheckoutComponent implements OnInit {
   totalQuantity: number = 0;
   creditCardYears: number[] = [];
   creditCardMonths: number[] = [];
+  countries: Country[] = [];
+  shippingAddressStates: State[] = [];
+  billingAddressStates: State[] = [];
+
 
   
   constructor(private formBuilder: FormBuilder,
@@ -68,14 +74,22 @@ export class CheckoutComponent implements OnInit {
         this.creditCardYears = data;
       })
 
-
+      // populate countries
+      this.shecoShopFormService.getCountries().subscribe(data => {
+        console.log("Retrived countries: " + JSON.stringify(data));
+        this.countries = data;
+      });
 
   }
+
+  
 onSubmit(){
   console.log("Handling the submit button")
   
   console.log(this.checkoutFormGroup.get('customer').value);
   console.log(this.checkoutFormGroup.get('customer').value.email);
+  console.log("The shippingAddress country is " + this.checkoutFormGroup.get('shippingAddress').value.country.name);
+  console.log("The shippingAddress state is " + this.checkoutFormGroup.get('shippingAddress').value.state.name);
 }
 
 copyShippingAddressToBillingAddress(event: any){
@@ -112,5 +126,23 @@ this.shecoShopFormService.getCreditCardMonths(startMonth).subscribe(
 )
 
 }
+getStates(formGroupName: string) {
+  const formGroup = this.checkoutFormGroup.get(formGroupName);
 
+  const countryCode = formGroup.value.country.code;
+  const countryName = formGroup.value.country.name;
+
+  console.log(`${formGroupName} country code: ${countryCode}`);
+  console.log(`${formGroupName} country name: ${countryName}`);
+
+  this.shecoShopFormService.getStates(countryCode).subscribe((data) => {
+    if (formGroupName === 'shippingAddress') {
+      this.shippingAddressStates = data;
+    } else {
+      this.billingAddressStates = data;
+    }
+
+    formGroup.get('state').setValue(data[0]);
+  });
+}
 }
